@@ -50,6 +50,15 @@ android {
             keyPassword = keystoreProperties.getProperty("keyPassword")
         }
     }
+    flavorDimensions += "version"
+
+    productFlavors {
+        create("prod") {
+            dimension = "version"
+            // You can specify unique IDs or names here if needed
+            // applicationIdSuffix = ".prod"
+        }
+    }
 
     buildTypes {
         getByName("release") {
