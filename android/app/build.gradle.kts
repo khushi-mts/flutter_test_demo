@@ -1,14 +1,18 @@
-val keystorePropertiesFile = rootProject.file("android/key_v1.jks.properties")
+import java.util.Properties
+import java.io.FileInputStream
+
+// 1. FIX PATH: rootProject usually refers to the 'android' folder.
+// If your file is 'android/key_v1.jks.properties', use that name exactly.
+val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
+
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -23,14 +27,12 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        // 2. FIX DEPRECATION: Use a simple string "17"
+        jvmTarget = "17"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.flutter_test_demo"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -39,10 +41,13 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = rootProject.file("android/keystore/keys.keystore")
-            storePassword = keystoreProperties["storePassword"] as String
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+            // 3. FIX PATH: If the file is in android/app/keystore/keys.keystore:
+            storeFile = file("keystore/keys.keystore")
+
+            // 4. FIX CASTING & TYPE: Use getProperty to avoid "No cast needed" errors
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
         }
     }
 
