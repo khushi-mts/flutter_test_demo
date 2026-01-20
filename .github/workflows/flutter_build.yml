@@ -10,6 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      # Pass secrets as environment variables
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,11 +37,20 @@ jobs:
 
       - name: Decode keystore
         run: |
-          mkdir -p android
-          printf "%s" "$KEYSTORE_BASE64" | base64 --decode > android/key_v1.jks
-          ls -lh android/key_v1.jks  # optional verification
+          mkdir -p android/app/keystore
+          printf "%s" "$KEYSTORE_BASE64" | base64 --decode > android/app/keystore/key_v1.jks
+          ls -lh android/app/keystore/key_v1.jks
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Create keystore properties
+        run: |
+          cat > android/app/keystore/key_v1.jks.properties <<EOF
+          storePassword=${KEYSTORE_PASSWORD}
+          keyAlias=${KEY_ALIAS}
+          keyPassword=${KEY_PASSWORD}
+          EOF
+          ls -lh android/app/keystore/key_v1.jks.properties
 
       - name: Build signed release APK
         run: |
@@ -44,10 +59,10 @@ jobs:
             --build-name=1.0.0 \
             --build-number=1 \
             --flavor prod \
-            --dart-define=KEYSTORE_PATH=android/key_v1.jks \
-            --dart-define=KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
-            --dart-define=KEY_ALIAS=${{ secrets.KEY_ALIAS }} \
-            --dart-define=KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+            --dart-define=KEYSTORE_PATH=android/app/keystore/key_v1.jks \
+            --dart-define=KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD} \
+            --dart-define=KEY_ALIAS=${KEY_ALIAS} \
+            --dart-define=KEY_PASSWORD=${KEY_PASSWORD}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
