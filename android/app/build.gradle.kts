@@ -41,9 +41,14 @@ android {
 
     signingConfigs {
         create("release") {
-            val path = keystoreProperties.getProperty("storeFile")
-            // This looks inside android/app/keystore/
-            storeFile = if (path != null) file(path) else null
+            val keystoreFile = file("keystore/keys.keystore")
+
+            if (!keystoreFile.exists()) {
+                // This will print the EXACT path Gradle is looking at in your logs
+                println("⚠️ ERROR: Keystore not found at: ${keystoreFile.absolutePath}")
+            }
+
+            storeFile = keystoreFile
 
             storePassword = keystoreProperties.getProperty("storePassword")
             keyAlias = keystoreProperties.getProperty("keyAlias")
