@@ -30,7 +30,7 @@ jobs:
         run: flutter pub get
 
       - name: Decode keystore
-        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/key.jks
+        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/key_v1.jks
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
@@ -40,7 +40,7 @@ jobs:
               --build-name=1.0.0 \
               --build-number=1 \
               --flavor prod \
-              --dart-define=KEYSTORE_PATH=android/key.jks \
+              --dart-define=KEYSTORE_PATH=android/key_v1.jks \
               --dart-define=KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
               --dart-define=KEY_ALIAS=${{ secrets.KEY_ALIAS }} \
               --dart-define=KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
