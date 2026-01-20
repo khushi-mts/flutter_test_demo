@@ -41,27 +41,13 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystoreFile = file("keystore/keys.keystore")
+            // 3. FIX PATH: If the file is in android/app/keystore/keys.keystore:
+            storeFile = rootProject.file("app/keystore/keys.keystore")
 
-            if (!keystoreFile.exists()) {
-                // This will print the EXACT path Gradle is looking at in your logs
-                println("⚠️ ERROR: Keystore not found at: ${keystoreFile.absolutePath}")
-            }
-
-            storeFile = keystoreFile
-
+            // 4. FIX CASTING & TYPE: Use getProperty to avoid "No cast needed" errors
             storePassword = keystoreProperties.getProperty("storePassword")
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
-        }
-    }
-    flavorDimensions += "version"
-
-    productFlavors {
-        create("prod") {
-            dimension = "version"
-            // You can specify unique IDs or names here if needed
-            // applicationIdSuffix = ".prod"
         }
     }
 
