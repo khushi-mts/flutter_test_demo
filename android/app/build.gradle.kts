@@ -3,7 +3,7 @@ import java.io.FileInputStream
 
 // 1. FIX PATH: rootProject usually refers to the 'android' folder.
 // If your file is 'android/key_v1.jks.properties', use that name exactly.
-val keystorePropertiesFile = rootProject.file("key.properties")
+val keystorePropertiesFile = rootProject.file("../key.properties")
 val keystoreProperties = Properties()
 
 if (keystorePropertiesFile.exists()) {
@@ -41,10 +41,10 @@ android {
 
     signingConfigs {
         create("release") {
-            // 3. FIX PATH: If the file is in android/app/keystore/keys.keystore:
-            storeFile = file("keystore/keys.keystore")
+            val path = keystoreProperties.getProperty("storeFile")
+            // This looks inside android/app/keystore/
+            storeFile = if (path != null) file(path) else null
 
-            // 4. FIX CASTING & TYPE: Use getProperty to avoid "No cast needed" errors
             storePassword = keystoreProperties.getProperty("storePassword")
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
@@ -55,6 +55,7 @@ android {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
