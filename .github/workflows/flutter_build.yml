@@ -30,7 +30,10 @@ jobs:
         run: flutter pub get
 
       - name: Decode keystore
-        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/key_v1.jks
+        run: |
+          mkdir -p android
+          printf "%s" "$KEYSTORE_BASE64" | base64 --decode > android/key_v1.jks
+          ls -lh android/key_v1.jks  # optional verification
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
